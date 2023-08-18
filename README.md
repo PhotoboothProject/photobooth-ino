@@ -1,0 +1,2 @@
+# Photobooth - example INO files
+
