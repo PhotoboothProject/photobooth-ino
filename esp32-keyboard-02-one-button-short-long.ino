@@ -1,6 +1,6 @@
 /**
  * Turn ESP32 into a Bluetooth LE keyboard
- * Get needed library: https://github.com/T-vK/ESP32-BLE-Keyboard/archive/refs/heads/master.zip
+ * Get needed library: https://github.com/andi34/ESP32-BLE-Keyboard/archive/refs/heads/master.zip
  *
  * Button - Long Press Short Press
  * 
