@@ -30,7 +30,7 @@ IPAddress gateway(xx, xx, xx, xx);
 void setup(void) {
   delay(500);
   Serial.begin(115200);
-  Serial.print(F("Setzte Statische IP: "));
+  Serial.print(F("Setting up static IP: "));
   Serial.println(ip);
 
   // Connect WIFI
