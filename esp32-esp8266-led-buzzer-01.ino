@@ -316,22 +316,23 @@ void handleNotFound() {
   server.send(404, "text/plain", message);
 }
 
-// setup() function -- runs once at startup
+// setup() function -- runs once at start
 void setup() {
+  // Start serial communication
   Serial.begin(115200);
   delay(10);
 
-  Serial.print(F("Datum:"));
+  // Print compilation info
+  Serial.print(F("Date: "));
   Serial.println(__DATE__);
-  Serial.print(F("Zeit:"));
+  Serial.print(F("Time: "));
   Serial.println(__TIME__);
-  Serial.print(F("File:"));
+  Serial.print(F("File: "));
   Serial.println(__FILE__);
-  Serial.println();
   Serial.println();
 
 #if isESP32
-  // ESP32-specific WiFi setup
+  // ESP32 Wi-Fi setup
   WiFi.mode(WIFI_STA);
   Serial.print(F("Setting static IP to: "));
   Serial.println(ip);
@@ -341,28 +342,8 @@ void setup() {
   // Disable power save mode
   esp_wifi_set_ps(WIFI_PS_NONE);
 
-  Serial.print("Connecting to ");
-  Serial.println(ssid);
-  WiFi.begin(ssid, password);
-
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-
-  // Print the IP address
-  Serial.println("");
-  Serial.print("Connected to ");
-  Serial.println(ssid);
-  Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
-
-  // Enable auto-reconnect and persistence
-  WiFi.setAutoReconnect(true);
-  WiFi.persistent(true);
-
 #else // ESP8266
-  // ESP8266-specific WiFi setup
+  // ESP8266 Wi-Fi setup
   WiFi.mode(WIFI_STA);
   Serial.print(F("Setting static IP to: "));
   Serial.println(ip);
@@ -372,6 +353,9 @@ void setup() {
   // Disable power save mode
   WiFi.setSleep(false);
 
+#endif
+
+  // Connect to Wi-Fi network
   Serial.print("Connecting to ");
   Serial.println(ssid);
   WiFi.begin(ssid, password);
@@ -381,51 +365,40 @@ void setup() {
     Serial.print(".");
   }
 
-  // Print the IP address
-  Serial.println("");
-  Serial.print("Connected to ");
+  // Print connected Wi-Fi details
+  Serial.println("\nConnected to ");
   Serial.println(ssid);
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
 
-  // Enable auto-reconnect and persistence
+  // Enable auto-reconnect and persistent Wi-Fi
   WiFi.setAutoReconnect(true);
   WiFi.persistent(true);
 
-#endif
-
-  // Set server routing
+  // Setup REST server routing
   restServerRouting();
-
-  // Set not found response
   server.onNotFound(handleNotFound);
 
-  // Start the server
+  // Start HTTP server
   server.begin();
   Serial.println("HTTP Server started");
 
-  // LED STRIP
+  // LED Strip setup
   Serial.print("LED Count: ");
   Serial.println(LED_COUNT);
   Serial.print("Turn off count for photo: ");
   Serial.println(cntdwnPhoto);
   Serial.print("Turn off count for collage: ");
   Serial.println(cntdwnCollage);
-  Serial.println("");
 
-  int value = LOW;
+  // Initialize NeoPixel strip
+  strip.begin();
+  strip.show(); // Turn off all pixels
+  strip.setBrightness(brightness);
 
 #if defined(__AVR_ATtiny85__) && (F_CPU == 16000000)
-  clock_prescale_set(clock_div_1);
+  clock_prescale_set(clock_div_1); // Trinket-specific code
 #endif
-  // END of Trinket-specific code.
-
-  // INITIALIZE NeoPixel strip object (REQUIRED)
-  strip.begin();
-
-  // Turn OFF all pixels ASAP
-  strip.show();
-  strip.setBrightness(brightness);
 }
 
 // loop() function -- runs repeatedly as long as board is on
