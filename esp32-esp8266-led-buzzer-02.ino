@@ -256,18 +256,21 @@ void handleNotFound() {
 
 // setup() function -- runs once at startup
 void setup() {
+  // Start serial communication
   Serial.begin(115200);
   delay(10);
+
+  // Print static IP configuration
   Serial.print(F("Setting static IP to: "));
   Serial.println(ip);
 
   // Connect to Wi-Fi network
   Serial.println();
-  Serial.println();
   Serial.print("Connecting to ");
   Serial.println(ssid);
 
 #if isESP32
+  // ESP32 specific Wi-Fi configuration
   WiFi.mode(WIFI_STA);
   WiFi.config(ip, gateway, subnet);
   WiFi.begin(ssid, password);
@@ -278,21 +281,22 @@ void setup() {
     Serial.print(".");
   }
 
-  // Print the IP address
-  Serial.println("");
+  // Print connection details for ESP32
+  Serial.println();
   Serial.print("Connected to ");
   Serial.println(ssid);
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
 
   // Disable Wi-Fi sleep on ESP32
-  WiFi.setSleep(WIFI_PS_NONE);
+  WiFi.setSleep(false);
 
   // Enable auto-reconnect and persistent settings on ESP32
   WiFi.setAutoReconnect(true);
   WiFi.persistent(true);
 
-#else // ESP8266
+#else
+  // ESP8266 specific Wi-Fi configuration
   WiFi.mode(WIFI_STA);
   WiFi.config(ip, gateway, subnet);
   WiFi.begin(ssid, password);
@@ -303,8 +307,8 @@ void setup() {
     Serial.print(".");
   }
 
-  // Print the IP address
-  Serial.println("");
+  // Print connection details for ESP8266
+  Serial.println();
   Serial.print("Connected to ");
   Serial.println(ssid);
   Serial.print("IP address: ");
@@ -319,34 +323,28 @@ void setup() {
 
 #endif
 
-  // Set server routing
+  // Configure server routing and start the server
   restServerRouting();
-
-  // Set not found response
   server.onNotFound(handleNotFound);
-
-  // Start the server
   server.begin();
   Serial.println("HTTP Server started");
 
-  // LED STRIP
+  // LED Strip setup
   Serial.print("LED Count: ");
   Serial.println(LED_COUNT);
   Serial.print("Turn off count for photo: ");
   Serial.println(cntdwnPhoto);
   Serial.print("Turn off count for collage: ");
   Serial.println(cntdwnCollage);
-  Serial.println("");
+  Serial.println();
 
 #if defined(__AVR_ATtiny85__) && (F_CPU == 16000000)
+  // Trinket-specific code
   clock_prescale_set(clock_div_1);
 #endif
-  // END of Trinket-specific code.
 
-  // INITIALIZE NeoPixel strip object (REQUIRED)
+  // Initialize NeoPixel strip and turn off all pixels
   strip.begin();
-
-  // Turn OFF all pixels ASAP
   strip.show();
   strip.setBrightness(brightness);
 }
