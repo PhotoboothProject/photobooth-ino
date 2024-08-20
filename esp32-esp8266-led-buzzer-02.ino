@@ -269,7 +269,7 @@ void setup() {
   Serial.print("Connecting to ");
   Serial.println(ssid);
 
-#if isESP32
+#if defined(ESP32)
   // ESP32 specific Wi-Fi configuration
   WiFi.mode(WIFI_STA);
   WiFi.config(ip, gateway, subnet);
@@ -289,7 +289,7 @@ void setup() {
   Serial.println(WiFi.localIP());
 
   // Disable Wi-Fi sleep on ESP32
-  WiFi.setSleep(false);
+  esp_wifi_set_ps(WIFI_PS_NONE);  // Disable power saving mode
 
   // Enable auto-reconnect and persistent settings on ESP32
   WiFi.setAutoReconnect(true);
@@ -315,7 +315,7 @@ void setup() {
   Serial.println(WiFi.localIP());
 
   // Disable Wi-Fi sleep on ESP8266
-  WiFi.setSleep(false);
+  WiFi.setSleep(false);  // Disable power saving mode
 
   // Enable auto-reconnect and persistent settings on ESP8266
   WiFi.setAutoReconnect(true);
