@@ -9,15 +9,23 @@
 
 #include "Arduino.h"
 
-// ESP8266
+// Define whether you are using ESP32
+const bool isESP32 = true;
+
+#if isESP32
+// ESP32 includes
+#include <WiFi.h>
+#include <WebServer.h>
+WebServer server(80);
+
+#else
+// ESP8266 includes
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
+ESP8266WebServer server(80);
 
-// ESP32
-// #include <WiFi.h>
-// #include <WiFiClient.h>
-// #include <WebServer.h>
+#endif
 
 #include <Adafruit_NeoPixel.h>
 
@@ -197,8 +205,6 @@ void collageDone() {
   theaterChaseRainbow(waitTheaterChaseRainbow, cyclesTheaterChaseRainbow, holdTimeDoneCollage);
 }
 
-ESP8266WebServer server(80);
-
 void setCrossOrigin() {
   server.sendHeader(F("Access-Control-Allow-Origin"), F("*"));
   server.sendHeader(F("Access-Control-Max-Age"), F("600"));
@@ -252,18 +258,21 @@ void handleNotFound() {
 void setup() {
   Serial.begin(115200);
   delay(10);
-  Serial.print(F("Setting static ip to : "));
+  Serial.print(F("Setting static IP to: "));
   Serial.println(ip);
 
-  // Connect to WiFi network
+  // Connect to Wi-Fi network
   Serial.println();
   Serial.println();
   Serial.print("Connecting to ");
   Serial.println(ssid);
+
+#if isESP32
   WiFi.mode(WIFI_STA);
   WiFi.config(ip, gateway, subnet);
   WiFi.begin(ssid, password);
 
+  // Wait for connection
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
@@ -276,12 +285,39 @@ void setup() {
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
 
-  // don't turn off wifi
-  WiFi.setSleep(false);
+  // Disable Wi-Fi sleep on ESP32
+  WiFi.setSleep(WIFI_PS_NONE);
 
-  // reconnect automatically after lost connection
+  // Enable auto-reconnect and persistent settings on ESP32
   WiFi.setAutoReconnect(true);
   WiFi.persistent(true);
+
+#else // ESP8266
+  WiFi.mode(WIFI_STA);
+  WiFi.config(ip, gateway, subnet);
+  WiFi.begin(ssid, password);
+
+  // Wait for connection
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  // Print the IP address
+  Serial.println("");
+  Serial.print("Connected to ");
+  Serial.println(ssid);
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
+
+  // Disable Wi-Fi sleep on ESP8266
+  WiFi.setSleep(false);
+
+  // Enable auto-reconnect and persistent settings on ESP8266
+  WiFi.setAutoReconnect(true);
+  WiFi.persistent(true);
+
+#endif
 
   // Set server routing
   restServerRouting();
@@ -292,6 +328,7 @@ void setup() {
   // Start the server
   server.begin();
   Serial.println("HTTP Server started");
+
   // LED STRIP
   Serial.print("LED Count: ");
   Serial.println(LED_COUNT);
@@ -301,9 +338,9 @@ void setup() {
   Serial.println(cntdwnCollage);
   Serial.println("");
 
-  #if defined(__AVR_ATtiny85__) && (F_CPU == 16000000)
+#if defined(__AVR_ATtiny85__) && (F_CPU == 16000000)
   clock_prescale_set(clock_div_1);
-  #endif
+#endif
   // END of Trinket-specific code.
 
   // INITIALIZE NeoPixel strip object (REQUIRED)
