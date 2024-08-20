@@ -269,7 +269,7 @@ void setup() {
   Serial.print("Connecting to ");
   Serial.println(ssid);
 
-#if defined(ESP32)
+#if isESP32
   // ESP32 specific Wi-Fi configuration
   WiFi.mode(WIFI_STA);
   WiFi.config(ip, gateway, subnet);
