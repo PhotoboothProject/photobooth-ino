@@ -9,15 +9,23 @@
 
 #include <Arduino.h>
 
-// ESP8266
+// Define whether you are using ESP32
+const bool isESP32 = true;
+
+#if isESP32
+// ESP32 includes
+#include <WiFi.h>
+#include <WebServer.h>
+WebServer server(80);
+
+#else
+// ESP8266 includes
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
+ESP8266WebServer server(80);
 
-// ESP32
-// #include <WiFi.h>
-// #include <WiFiClient.h>
-// #include <WebServer.h>
+#endif
 
 #include <Adafruit_NeoPixel.h>
 
@@ -192,8 +200,6 @@ void stripClear() {
   strip.show();
 }
 
-ESP8266WebServer server(80);
-
 void testPage() {
   server.send(200, "text/html", INDEX_HTML);
 }
@@ -324,14 +330,15 @@ void setup() {
   Serial.println();
   Serial.println();
 
-  // Connect to WiFi network
+#if isESP32
+  // ESP32-specific WiFi setup
   WiFi.mode(WIFI_STA);
-  Serial.print(F("Setting static ip to : "));
+  Serial.print(F("Setting static IP to: "));
   Serial.println(ip);
   WiFi.config(ip, gateway, subnet);
   Serial.println();
 
-  // No power save
+  // Disable power save mode
   esp_wifi_set_ps(WIFI_PS_NONE);
 
   Serial.print("Connecting to ");
@@ -350,9 +357,42 @@ void setup() {
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
 
-  // reconnect automatically after lost connection
+  // Enable auto-reconnect and persistence
   WiFi.setAutoReconnect(true);
   WiFi.persistent(true);
+
+#else // ESP8266
+  // ESP8266-specific WiFi setup
+  WiFi.mode(WIFI_STA);
+  Serial.print(F("Setting static IP to: "));
+  Serial.println(ip);
+  WiFi.config(ip, gateway, subnet);
+  Serial.println();
+
+  // Disable power save mode
+  WiFi.setSleep(false);
+
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
+  WiFi.begin(ssid, password);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  // Print the IP address
+  Serial.println("");
+  Serial.print("Connected to ");
+  Serial.println(ssid);
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
+
+  // Enable auto-reconnect and persistence
+  WiFi.setAutoReconnect(true);
+  WiFi.persistent(true);
+
+#endif
 
   // Set server routing
   restServerRouting();
@@ -375,9 +415,9 @@ void setup() {
 
   int value = LOW;
 
-  #if defined(__AVR_ATtiny85__) && (F_CPU == 16000000)
+#if defined(__AVR_ATtiny85__) && (F_CPU == 16000000)
   clock_prescale_set(clock_div_1);
-  #endif
+#endif
   // END of Trinket-specific code.
 
   // INITIALIZE NeoPixel strip object (REQUIRED)
