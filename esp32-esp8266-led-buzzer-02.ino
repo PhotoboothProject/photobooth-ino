@@ -16,14 +16,12 @@ const bool isESP32 = true;
 // ESP32 includes
 #include <WiFi.h>
 #include <WebServer.h>
-WebServer server(80);
 
 #else
 // ESP8266 includes
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
-ESP8266WebServer server(80);
 
 #endif
 
@@ -48,9 +46,13 @@ const char * ssid = "<Your-SSID>";
 const char * password = "<Your-Password>";
 
 // ADD NETWORK SETTINGS
-IPAddress ip(192, 168, 0, 12); // where xx is the desired IP Address
-IPAddress gateway(192, 168, 0, 1); // set gateway to match your network
-IPAddress subnet(255, 255, 255, 0); // set subnet mask to match your network
+WiFiServer server(80);
+// Static IP of ESP8266 or ESP32
+IPAddress ip(192, 168, 1, 100);
+// Gateway (typically your router)
+IPAddress gateway(192, 168, 1, 1);
+ // set subnet mask to match your network
+IPAddress subnet(255, 255, 255, 0);
 
 // NeoPixels changing on Photo Countdown (value = LED_COUNT / Countdown in seconds), Photbooth defaults to 10 seconds
 int cntdwnPhoto = 6;
