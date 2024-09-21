@@ -1,4 +1,10 @@
+/**
+ * Turn ESP32 into a Bluetooth LE keyboard
+ * Get needed library: https://github.com/andi34/ESP32-BLE-Keyboard/archive/refs/heads/master.zip
+ */
+
 #include <BleKeyboard.h>
+#include <KeyCodes.h>
 
 #define BUTTON_PIN_F 2
 #define BUTTON_PIN_C 4

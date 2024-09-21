@@ -16,6 +16,7 @@
 #define USE_NIMBLE
 
 #include <BleKeyboard.h>
+#include <KeyCodes.h>
 
 // Change the below values if desired
 #define BUTTON_PIN 2
