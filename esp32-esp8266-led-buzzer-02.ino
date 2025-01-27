@@ -142,7 +142,7 @@ void rainbow(int wait, int wheelRange, int pixelAddition, int holdTime) {
       // Offset pixel hue by an amount to make one full revolution of the
       // color wheel (range of 65536) along the length of the strip
       // (strip.numPixels() steps):
-      int pixelHue = firstPixelHue + (i * 65536 L / strip.numPixels());
+      int pixelHue = firstPixelHue + (i * 65536 / strip.numPixels());
       // strip.ColorHSV() can take 1 or 3 arguments: a hue (0 to 65535) or
       // optionally add saturation and value (brightness) (each 0 to 255).
       // Here we're using just the single-argument hue variant. The result
