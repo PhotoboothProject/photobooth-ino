@@ -39,7 +39,7 @@ const char *ssid = "Your SSID";
 const char *password = "Your WIFI Password";
 
 // Define WIFI-IP and Gateway
-WiFiServer server(80);
+WebServer server(80);
 // Static IP of ESP8266 or ESP32
 IPAddress ip(192, 168, 1, 100);
 // Gateway (typically your router)
