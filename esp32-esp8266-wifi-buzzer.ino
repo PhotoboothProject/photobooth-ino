@@ -72,13 +72,13 @@ void setup(void) {
   Serial.print(WiFi.localIP());
   Serial.println("/");
 
-  #if defined(ESP32)
+#if defined(ESP32)
     // Disable Wi-Fi sleep on ESP32
     esp_wifi_set_ps(WIFI_PS_NONE);
-  #else
+#else
     // Disable Wi-Fi sleep on ESP8266
     WiFi.setSleep(false);
-  #endif
+#endif
 
   // Enable auto-reconnect and persistent settings
   WiFi.setAutoReconnect(true);
