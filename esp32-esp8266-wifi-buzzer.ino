@@ -5,21 +5,19 @@
 
 #include <OneButton.h>
 
-// Define whether you are using ESP32
-const bool isESP32 = true;
-
-#if isESP32
+#if defined(ESP32)
 // ESP32 includes
 #include <WiFi.h>
 #include <WebServer.h>
 
 #else
+
 // ESP8266 includes
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
-
 #endif
+
 #if SOFTWARE_SERIAL_AVAILABLE
 #include <SoftwareSerial.h>
 #endif
@@ -74,7 +72,7 @@ void setup(void) {
   Serial.print(WiFi.localIP());
   Serial.println("/");
 
-  #if isESP32
+  #if defined(ESP32)
     // Disable Wi-Fi sleep on ESP32
     esp_wifi_set_ps(WIFI_PS_NONE);
   #else
