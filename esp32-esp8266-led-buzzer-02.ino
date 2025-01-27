@@ -9,10 +9,7 @@
 
 #include "Arduino.h"
 
-// Define whether you are using ESP32
-const bool isESP32 = true;
-
-#if isESP32
+#if defined(ESP32)
 // ESP32 includes
 #include <WiFi.h>
 #include <WebServer.h>
@@ -271,7 +268,7 @@ void setup() {
   Serial.print("Connecting to ");
   Serial.println(ssid);
 
-#if isESP32
+#if defined(ESP32)
   // ESP32 specific Wi-Fi configuration
   WiFi.mode(WIFI_STA);
   WiFi.config(ip, gateway, subnet);
