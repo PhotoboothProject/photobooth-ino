@@ -11,10 +11,7 @@
 #include <OneButton.h>
 #include <Adafruit_NeoPixel.h>
 
-// Define whether you are using ESP32
-const bool isESP32 = true;
-
-#if isESP32
+#if defined(ESP32)
 // ESP32 includes
 #include <WiFi.h>
 #include <WebServer.h>
@@ -269,7 +266,7 @@ void setup() {
   Serial.print(WiFi.localIP());
   Serial.println("/");
 
-  #if isESP32
+  #if defined(ESP32)
     // Disable Wi-Fi sleep on ESP32
     esp_wifi_set_ps(WIFI_PS_NONE);
   #else
