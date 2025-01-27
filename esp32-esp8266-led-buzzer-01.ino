@@ -9,10 +9,7 @@
 
 #include <Arduino.h>
 
-// Define whether you are using ESP32
-const bool isESP32 = true;
-
-#if isESP32
+#if defined(ESP32)
 // ESP32 includes
 #include <WiFi.h>
 #include <WebServer.h>
@@ -333,7 +330,7 @@ void setup() {
   Serial.println(__FILE__);
   Serial.println();
 
-#if isESP32
+#if defined(ESP32)
   // ESP32 Wi-Fi setup
   WiFi.mode(WIFI_STA);
   Serial.print(F("Setting static IP to: "));
