@@ -268,8 +268,6 @@ void setup() {
   Serial.print("Connecting to ");
   Serial.println(ssid);
 
-#if defined(ESP32)
-  // ESP32 specific Wi-Fi configuration
   WiFi.mode(WIFI_STA);
   WiFi.config(ip, gateway, subnet);
   WiFi.begin(ssid, password);
@@ -287,40 +285,15 @@ void setup() {
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
 
-  // Disable Wi-Fi sleep on ESP32
-  esp_wifi_set_ps(WIFI_PS_NONE);  // Disable power saving mode
-
-  // Enable auto-reconnect and persistent settings on ESP32
-  WiFi.setAutoReconnect(true);
-  WiFi.persistent(true);
-
+#if defined(ESP32)
+  esp_wifi_set_ps(WIFI_PS_NONE);
 #else
-  // ESP8266 specific Wi-Fi configuration
-  WiFi.mode(WIFI_STA);
-  WiFi.config(ip, gateway, subnet);
-  WiFi.begin(ssid, password);
-
-  // Wait for connection
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-
-  // Print connection details for ESP8266
-  Serial.println();
-  Serial.print("Connected to ");
-  Serial.println(ssid);
-  Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
-
-  // Disable Wi-Fi sleep on ESP8266
-  WiFi.setSleep(false);  // Disable power saving mode
-
-  // Enable auto-reconnect and persistent settings on ESP8266
+  WiFi.setSleep(false);
+#endif
+ 
+  // Enable auto-reconnect and persistent settings
   WiFi.setAutoReconnect(true);
   WiFi.persistent(true);
-
-#endif
 
   // Configure server routing and start the server
   restServerRouting();
