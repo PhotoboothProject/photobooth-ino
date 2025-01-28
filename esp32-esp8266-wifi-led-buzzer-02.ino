@@ -164,6 +164,14 @@ void stripClear() {
   strip.show();
 }
 
+void greenLight() {
+  strip.fill(strip.Color(0, 255, 0));
+  strip.setBrightness(2000);
+  strip.show();
+  delay(2000);
+  stripClear();
+}
+
 void photoCntdwn() {
   photoled(waitPhotoled, cntdwnPhoto, holdTimePhoto);
 }
@@ -245,18 +253,28 @@ void longclick() {
 void setup() {
   delay(500);
   Serial.begin(115200);
-  Serial.print(F("Setting up static IP: "));
-  Serial.println(ip);
+
+  // Initialize NeoPixel strip and turn off all pixels
+  strip.begin();
+  stripClear();
 
   // Connect to Wi-Fi
+  Serial.print(F("Setting up static IP: "));
+  Serial.println(ip);
   WiFi.mode(WIFI_STA);
   WiFi.config(ip, gateway, IPAddress(255, 255, 255, 0));
   WiFi.begin(ssid, password);
 
   while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
+    strip.fill(strip.Color(255, 0, 0));
+    strip.setBrightness(2000);
+    strip.show();
+    delay(1000);
     Serial.print(".");
+    stripClear();
   }
+
+  greenLight();
 
   // Print connection details
   Serial.println("");
@@ -282,10 +300,7 @@ void setup() {
   server.begin();
   Serial.println("Server started");
 
-  // Initialize the NeoPixel strip
-  strip.begin();
   strip.setBrightness(brightness);
-  strip.show();  // Initialize all pixels to 'off'
 
   // Setup REST server routing
   restServerRouting();
