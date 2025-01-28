@@ -188,6 +188,14 @@ void stripClear() {
   strip.show();
 }
 
+void greenLight() {
+  strip.fill(strip.Color(0, 255, 0));
+  strip.setBrightness(2000);
+  strip.show();
+  delay(2000);
+  stripClear();
+}
+
 void photoCntdwn() {
   photoled(waitPhotoled, cntdwnPhoto, holdTimePhoto);
 }
@@ -259,6 +267,10 @@ void setup() {
   Serial.begin(115200);
   delay(10);
 
+  // Initialize NeoPixel strip and turn off all pixels
+  strip.begin();
+  stripClear();
+
   // Print static IP configuration
   Serial.print(F("Setting static IP to: "));
   Serial.println(ip);
@@ -274,11 +286,16 @@ void setup() {
 
   // Wait for connection
   while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
+    strip.fill(strip.Color(255, 0, 0));
+    strip.setBrightness(2000);
+    strip.show();
+    delay(1000);
     Serial.print(".");
+    stripClear();
   }
 
-  // Print connection details for ESP32
+  greenLight();
+
   Serial.println();
   Serial.print("Connected to ");
   Serial.println(ssid);
@@ -315,9 +332,6 @@ void setup() {
   clock_prescale_set(clock_div_1);
 #endif
 
-  // Initialize NeoPixel strip and turn off all pixels
-  strip.begin();
-  strip.show();
   strip.setBrightness(brightness);
 }
 
