@@ -153,7 +153,7 @@ void rainbow(int wait, int wheelRange, int pixelAddition, int holdTime) {
       // Offset pixel hue by an amount to make one full revolution of the
       // color wheel (range of 65536) along the length of the strip
       // (strip.numPixels() steps):
-      int pixelHue = firstPixelHue + (i * 65536 / strip.numPixels());
+      int pixelHue = firstPixelHue + (i * 65536L / strip.numPixels());
       // strip.ColorHSV() can take 1 or 3 arguments: a hue (0 to 65535) or
       // optionally add saturation and value (brightness) (each 0 to 255).
       // Here we're using just the single-argument hue variant. The result
@@ -178,7 +178,7 @@ void theaterChaseRainbow(int wait, int cycles, int holdTime) {
         // hue of pixel 'c' is offset by an amount to make one full
         // revolution of the color wheel (range 65536) along the length
         // of the strip (strip.numPixels() steps):
-        int hue = firstPixelHue + c * 65536 / strip.numPixels();
+        int hue = firstPixelHue + c * 65536L / strip.numPixels();
         uint32_t color = strip.gamma32(strip.ColorHSV(hue)); // hue -> RGB
         strip.setPixelColor(c, color); // Set pixel 'c' to value 'color'
       }
