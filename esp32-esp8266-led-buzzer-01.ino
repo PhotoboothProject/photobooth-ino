@@ -329,31 +329,16 @@ void setup() {
   Serial.print(F("File: "));
   Serial.println(__FILE__);
   Serial.println();
-
+  WiFi.mode(WIFI_STA);
+  Serial.print(F("Setting static IP to: "));
+  Serial.println(ip);
+  WiFi.config(ip, gateway, subnet);
+  Serial.println();
 #if defined(ESP32)
-  // ESP32 Wi-Fi setup
-  WiFi.mode(WIFI_STA);
-  Serial.print(F("Setting static IP to: "));
-  Serial.println(ip);
-  WiFi.config(ip, gateway, subnet);
-  Serial.println();
-
-  // Disable power save mode
   esp_wifi_set_ps(WIFI_PS_NONE);
-
-#else // ESP8266
-  // ESP8266 Wi-Fi setup
-  WiFi.mode(WIFI_STA);
-  Serial.print(F("Setting static IP to: "));
-  Serial.println(ip);
-  WiFi.config(ip, gateway, subnet);
-  Serial.println();
-
-  // Disable power save mode
+#else
   WiFi.setSleep(false);
-
 #endif
-
   // Connect to Wi-Fi network
   Serial.print("Connecting to ");
   Serial.println(ssid);
