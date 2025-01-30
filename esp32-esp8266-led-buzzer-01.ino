@@ -178,7 +178,7 @@ void theaterChaseRainbow(int wait, int cycles, int holdTime) {
         // hue of pixel 'c' is offset by an amount to make one full
         // revolution of the color wheel (range 65536) along the length
         // of the strip (strip.numPixels() steps):
-        int hue = firstPixelHue + c * 65536 L / strip.numPixels();
+        int hue = firstPixelHue + c * 65536 / strip.numPixels();
         uint32_t color = strip.gamma32(strip.ColorHSV(hue)); // hue -> RGB
         strip.setPixelColor(c, color); // Set pixel 'c' to value 'color'
       }
