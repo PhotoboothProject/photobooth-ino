@@ -16,6 +16,8 @@
 #include <WiFi.h>
 #include <WebServer.h>
 #include <HTTPClient.h>
+#include <esp_wifi.h>
+
 #else
 // ESP8266 includes
 #include <ESP8266WiFi.h>
