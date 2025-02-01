@@ -9,6 +9,7 @@
 // ESP32 includes
 #include <WiFi.h>
 #include <WebServer.h>
+#include <esp_wifi.h>
 
 #else
 
