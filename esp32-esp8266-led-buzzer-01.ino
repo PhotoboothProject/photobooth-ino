@@ -13,6 +13,7 @@
 // ESP32 includes
 #include <WiFi.h>
 #include <WebServer.h>
+#include <esp_wifi.h>
 
 #else
 // ESP8266 includes
@@ -223,11 +224,12 @@ void sendInfo() {
   message += "  \"gateway\": \"" + WiFi.gatewayIP().toString() + "\",\n";
   message += "  \"subnetMask\": \"" + WiFi.subnetMask().toString() + "\",\n";
   message += "  \"signalStrengh\": \"" + String(WiFi.RSSI()) + "\",\n";
-
+  message += "  \"flashChipSize\": \"" + String(ESP.getFlashChipSize()) + "\",\n";
+#if !defined(ESP32)
+  message += "  \"flashChipRealSize\": \"" + String(ESP.getFlashChipRealSize()) + "\",\n";
   message += "  \"chipId\": \"" + String(ESP.getChipId()) + "\",\n";
   message += "  \"flashChipId\": \"" + String(ESP.getFlashChipId()) + "\",\n";
-  message += "  \"flashChipSize\": \"" + String(ESP.getFlashChipSize()) + "\",\n";
-  message += "  \"flashChipRealSize\": \"" + String(ESP.getFlashChipRealSize()) + "\",\n";
+#endif
   message += "  \"freeHeap\": \"" + String(ESP.getFreeHeap()) + "\",\n";
 
   message += "\"\n";
