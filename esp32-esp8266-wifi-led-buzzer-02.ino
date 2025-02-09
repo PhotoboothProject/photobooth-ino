@@ -8,7 +8,7 @@
  */
 
 #include "Arduino.h"
-#include <OneButton.h>
+#include <OneButtonTiny.h>
 #include <Adafruit_NeoPixel.h>
 
 #if defined(ESP32)
@@ -29,6 +29,9 @@
 //
 // U S E R S E T U P  S T A R T S  H E R E
 //
+
+// Button PIN
+#define BUTTON_PIN D1
 
 // NeoPixels connected pin
 #define LED_PIN D4
@@ -55,9 +58,6 @@ IPAddress gateway(192, 168, 1, 1);
 const char *photoboothIP = "192.168.1.50";
 // Photobooth remotebuzzer server port
 const int photoboothPort = 14711;
-
-// Button pin
-OneButton button(D1, true);
 
 // NeoPixels changing on Photo Countdown (value = LED_COUNT / Countdown in seconds)
 int cntdwnPhoto = 6;
@@ -87,13 +87,17 @@ int holdTimePhoto = 2000;
 int holdTimeDoneCollage = 2000;
 int holdTimeDonePhoto = 2000;
 
-// Wi-Fi client and HTTP client
-WiFiClient client;
-HTTPClient http;
 
 //
 // U S E R S E T U P  E N D S  H E R E
 //
+
+// Wi-Fi client and HTTP client
+WiFiClient client;
+HTTPClient http;
+
+// OneButton
+OneButtonTiny button;
 
 void colorWipe(uint32_t color, int wait) {
   for (int i = 0; i < strip.numPixels(); i++) {
@@ -313,6 +317,11 @@ void setup() {
   restServerRouting();
 
   // Button click event configuration
+  button.setup(
+    BUTTON_PIN,   // Input pin for the button
+    INPUT_PULLUP, // INPUT and enable the internal pull-up resistor
+    true          // Button is active LOW
+  );
   button.attachLongPressStop(longclick);
   button.attachClick(singleclick);
 
