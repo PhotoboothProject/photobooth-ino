@@ -8,7 +8,7 @@
  */
 
 #include "Arduino.h"
-#include <OneButtonTiny.h>
+#include <OneButton.h>
 #include <Adafruit_NeoPixel.h>
 
 #if defined(ESP32)
@@ -97,7 +97,7 @@ WiFiClient client;
 HTTPClient http;
 
 // OneButton
-OneButtonTiny button;
+OneButton button;
 
 void colorWipe(uint32_t color, int wait) {
   for (int i = 0; i < strip.numPixels(); i++) {
