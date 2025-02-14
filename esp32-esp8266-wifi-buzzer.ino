@@ -96,6 +96,8 @@ void setup(void) {
   Serial.println(F("GET Request to Remotebuzzer-Server ready!"));
   Serial.println(F("---------------------------------------"));
 
+  // Trigger long press after 1500ms
+  button.setPressMs(1500);
   // Button click events
   button.attachLongPressStop(longclick);
   button.attachClick(singleclick);
