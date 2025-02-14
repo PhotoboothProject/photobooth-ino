@@ -322,6 +322,8 @@ void setup() {
     INPUT_PULLUP, // INPUT and enable the internal pull-up resistor
     true          // Button is active LOW
   );
+  // Trigger long press after 1500ms
+  button.setPressMs(1500);
   button.attachLongPressStop(longclick);
   button.attachClick(singleclick);
 
