@@ -23,8 +23,8 @@
 #include <SoftwareSerial.h>
 #endif
 
-// PIN definition
-OneButton button(D1, true);
+// Button PIN
+#define BUTTON_PIN D1
 
 // WIFI Connection
 const char * ssid = "Your SSID";
@@ -47,6 +47,9 @@ const int photoboothPort = 14711;
 
 WiFiClient client;
 HTTPClient http;
+
+// OneButton
+OneButton button;
 
 void setup(void) {
   delay(500);
@@ -96,9 +99,14 @@ void setup(void) {
   Serial.println(F("GET Request to Remotebuzzer-Server ready!"));
   Serial.println(F("---------------------------------------"));
 
+  // Button click event configuration
+  button.setup(
+    BUTTON_PIN,   // Input pin for the button
+    INPUT_PULLUP, // INPUT and enable the internal pull-up resistor
+    true          // Button is active LOW
+  );
   // Trigger long press after 1500ms
   button.setPressMs(1500);
-  // Button click events
   button.attachLongPressStop(longclick);
   button.attachClick(singleclick);
 }
