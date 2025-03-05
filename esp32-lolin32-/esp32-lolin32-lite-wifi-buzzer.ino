@@ -168,18 +168,15 @@ void battStatus() {
   display.print("ca.");
   display.print(batProz);  // Ausgabe Akkuspannung in geschätzten Prozent
   display.print("%");
+  display.println("");
+
   if (lademodus == 1) {
-    display.println("");
     display.println("Lademodus mit Foto");
     display.println("beenden! => RESET");
-    display.drawRect(0, 50, 127, 10, SSD1306_WHITE);  // Ladebalken Rahmen
-    display.fillRect(0, 50, map(batProz, 0, 100, 0, 127), 10, SSD1306_WHITE); // ausfüllen des Ladebalken
   }
-  if (lademodus == 0) {
-    display.println("");
-    display.drawRect(0, 50, 127, 10, SSD1306_WHITE);  // Ladebalken Rahmen
-    display.fillRect(0, 50, map(batProz, 0, 100, 0, 127), 10, SSD1306_WHITE); // ausfüllen des Ladebalken
-  }
+
+  display.drawRect(0, 50, 127, 10, SSD1306_WHITE);  // Ladebalken Rahmen
+  display.fillRect(0, 50, map(batProz, 0, 100, 0, 127), 10, SSD1306_WHITE); // ausfüllen des Ladebalken
   display.display();
 }
 
