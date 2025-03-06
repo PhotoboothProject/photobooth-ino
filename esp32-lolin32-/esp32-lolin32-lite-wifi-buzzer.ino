@@ -19,7 +19,6 @@
  *
 **************************************************************************************************/
 
-#include <SPI.h>
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
@@ -253,7 +252,7 @@ void connect_wifi() {
   display.print("IP: ");
   display.println(WiFi.localIP());
   display.display();
-  digitalWrite(ledPin, 0);
+  digitalWrite(LED_PIN, 0);
 }
 
 void SendGETrequest(String PATH_NAME) {  // GET-Request senden an Fotobox-Server
