@@ -33,10 +33,10 @@ const char* ssid = "!!!FotoBox!!!";      // WLAN-Name des Routers der Fotobox
 const char* password = "diefotobox";     // Passwort des WLAN's 
 char HOST_NAME[] = "192.168.15.10";      // Remote-Buzzer-Server-IP (IP Fotobox-PC)
 
-  IPAddress staticIP(192, 168, 15, 17);  // IP des Buzzer-ESP
-  IPAddress gateway(192, 168, 15, 1);    // IP Router
-  IPAddress subnet(255, 255, 255, 0);    // Subnet-Maske
-  IPAddress dns(192, 168, 15, 1);        // IP Router
+IPAddress staticIP(192, 168, 15, 17);  // IP des Buzzer-ESP
+IPAddress gateway(192, 168, 15, 1);    // IP Router
+IPAddress subnet(255, 255, 255, 0);    // Subnet-Maske
+IPAddress dns(192, 168, 15, 1);        // IP Router
 //
 // Ende Benutzereinstellungen
 //
@@ -47,14 +47,17 @@ char HOST_NAME[] = "192.168.15.10";      // Remote-Buzzer-Server-IP (IP Fotobox-
 #define SCREEN_ADDRESS 0x3C  // < See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
-int analogPin = 34;  // Anschluss für Spannungsteiler für Spannungsmessung
+// ===== Define GPIO Pins as Macros =====
+#define PHOTO_BUTTON   17  // Pin for photo button
+#define COLLAGE_BUTTON 5   // Pin for collage button
+#define PRINT_BUTTON   18  // Pin for print button
+#define LED_PIN        22  // LED for connection feedback
+#define VOLTAGE_SENSOR 34  // Voltage sensor pin (for battery measurement)
+
 float vbat = 0;      //
 int batProz = 0;
 int val = 0;      // variable to store the value read
 int korrF = 250;  // Korrekturfaktor in mV (orginal 110, ggf. anpassen damit bei vollem Akku ca 100% angezeigt wird)
-int photo = 17;   // Pin für Foto-Taster
-int collage = 5;  // Pin für Collage-Taster
-int print = 18;   // Pin für Print-Taster
 int lademodus = 0;
 int I2C_SCL = 23;                    // I2C Pins SCL-23 / SDA-19
 int I2C_SDA = 19;                    // I2C Pins SCL-23 / SDA-19
@@ -65,10 +68,8 @@ int HTTP_PORT = 14711;               // PORT für GET Request
 String HTTP_METHOD = "GET";          // or "POST"
 String PATH_NAME = "";               // String PATH_NAME   = "/commands/start-picture";
 
-
 String WLANStatus[7];  // Array für WLAN-Status Codes
-// LED Pin, Blink-Werte
-const int ledPin = 22;  // LED_BUILTIN; // boardeigene LED als Verbindungskontrolle
+// LED Blink-Werte
 int anz = 5;
 int speed = 100;
 
@@ -145,7 +146,7 @@ void (*resetFunc)(void) = 0;  // create a reset-function
 
 void battStatus() {
   for (int i = 0; i <= 99; i++) {  // Integration über 100 Werte, jeweils 10ms Abstand
-    val = val + analogRead(analogPin);
+    val = val + analogRead(VOLTAGE_SENSOR);
     delay(10);
   }
   val = val / 100;
@@ -181,7 +182,7 @@ void battStatus() {
 }
 
 void runChargingMode() {
-  while (digitalRead(photo) == HIGH) {  // Schleife, bis PHOTO gedrückt wird
+  while (digitalRead(PHOTO_BUTTON) == HIGH) {  // Schleife, bis PHOTO gedrückt wird
     lademodus = 1;
     battStatus();
     delay(100);
@@ -197,9 +198,9 @@ void runChargingMode() {
 
 void ledflash(int anz, int speed) {  // LED blinken lassen, wie oft, wie schnell
   for (int i = 0; i <= anz - 1; i++) {
-    digitalWrite(ledPin, 1);
+    digitalWrite(LED_PIN, 1);
     delay(speed);
-    digitalWrite(ledPin, 0);
+    digitalWrite(LED_PIN, 0);
     delay(speed);
   }
 }
@@ -231,7 +232,7 @@ void connect_wifi() {
 
   WiFi.begin(ssid, password);
 
-  while (WiFi.status() != WL_CONNECTED && digitalRead(print) == HIGH) {
+  while (WiFi.status() != WL_CONNECTED && digitalRead(PRINT_BUTTON) == HIGH) {
     ledflash(10, 50);  //LED blinkt, solange WLAN noch nicht verbunden
     // delay(250);
     Serial.print(".");
@@ -241,7 +242,7 @@ void connect_wifi() {
     display.print(".");
     display.display();
   }
-  if (digitalRead(print) == LOW) {  // LADE-Modus bei gedrücktem PRINT-Taster während WLAN Connects
+  if (digitalRead(PRINT_BUTTON) == LOW) {  // LADE-Modus bei gedrücktem PRINT-Taster während WLAN Connects
     Serial.println("PRINT-Taster wurde gedrückt, starte Lademodus ohne WIFI");
     runChargingMode();
   }
@@ -288,13 +289,11 @@ void SendGETrequest(String PATH_NAME) {  // GET-Request senden an Fotobox-Server
 
 void setup() {
   Serial.begin(115200);            // Terminal-Ausgabe starten
-  pinMode(ledPin, OUTPUT);         //
-  pinMode(photo, INPUT_PULLUP);    // Input-Pin für Foto-Taster mit Pull-Up, Taster nach Masse
-  pinMode(collage, INPUT_PULLUP);  // Input-Pin für Collage-Taster mit Pull-Up, Taster nach Masse
-  pinMode(print, INPUT_PULLUP);    // Input-Pin für Print-Taster mit Pull-Up, Taster nach Masse
+  pinMode(LED_PIN, OUTPUT);         //
+  pinMode(PHOTO_BUTTON, INPUT_PULLUP);    // Input-Pin für Foto-Taster mit Pull-Up, Taster nach Masse
+  pinMode(COLLAGE_BUTTON, INPUT_PULLUP);  // Input-Pin für Collage-Taster mit Pull-Up, Taster nach Masse
+  pinMode(PRINT_BUTTON, INPUT_PULLUP);    // Input-Pin für Print-Taster mit Pull-Up, Taster nach Masse
   delay(100);
-
-
 
   Wire.begin(I2C_SDA, I2C_SCL);  // I2C Display starten
 
@@ -333,7 +332,7 @@ void loop() {  // L O O P
     connect_wifi();  // WLAN Verbindung aktivieren
   }
 
-  if (digitalRead(photo) == LOW)  // wenn Foto-TAster gedrückt
+  if (digitalRead(PHOTO_BUTTON) == LOW)  // wenn Foto-TAster gedrückt
   {
     display.clearDisplay();
     display.setTextSize(2);               // Normal 1:1 pixel scale
@@ -345,7 +344,7 @@ void loop() {  // L O O P
     SendGETrequest(PATH_NAME);  // GET Request senden
   }
 
-  if (digitalRead(collage) == LOW) {
+  if (digitalRead(COLLAGE_BUTTON) == LOW) {
     display.clearDisplay();
     display.setTextSize(2);               // Normal 1:1 pixel scale
     display.setTextColor(SSD1306_WHITE);  // Draw white text
@@ -356,7 +355,7 @@ void loop() {  // L O O P
     SendGETrequest(PATH_NAME);  // GET Request senden
   }
 
-  if (digitalRead(print) == LOW) {
+  if (digitalRead(PRINT_BUTTON) == LOW) {
     display.clearDisplay();
     display.setTextSize(2);               // Normal 1:1 pixel scale
     display.setTextColor(SSD1306_WHITE);  // Draw white text
