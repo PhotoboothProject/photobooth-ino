@@ -69,9 +69,6 @@ String HTTP_METHOD = "GET";          // or "POST"
 String PATH_NAME = "";               // String PATH_NAME   = "/commands/start-picture";
 
 String WLANStatus[7];  // Array für WLAN-Status Codes
-// LED Blink-Werte
-int anz = 5;
-int speed = 100;
 
 // Logo Photobooth-Bitmap
 const unsigned char Photobooth [] PROGMEM = {
@@ -196,8 +193,8 @@ void runChargingMode() {
   resetFunc();
 }
 
-void ledflash(int anz, int speed) {  // LED blinken lassen, wie oft, wie schnell
-  for (int i = 0; i <= anz - 1; i++) {
+void ledflash(int times, int speed) {
+  for (int i = 0; i <= times - 1; i++) {
     digitalWrite(LED_PIN, 1);
     delay(speed);
     digitalWrite(LED_PIN, 0);
