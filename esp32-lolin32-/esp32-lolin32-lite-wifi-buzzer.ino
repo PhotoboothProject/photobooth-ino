@@ -26,25 +26,23 @@
 #include <WiFi.h>
 #include <esp_sleep.h>       
 
-//
-// Start Benutzereinstellungen
-//
-const char* ssid = "!!!FotoBox!!!";      // WLAN-Name des Routers der Fotobox
-const char* password = "diefotobox";     // Passwort des WLAN's 
-char HOST_NAME[] = "192.168.15.10";      // Remote-Buzzer-Server-IP (IP Fotobox-PC)
+// ===== User Settings =====
+const char* ssid = "!!!FotoBox!!!";      // WLAN name
+const char* password = "diefotobox";     // WLAN password
+char HOST_NAME[] = "192.168.15.10";      // Remote Buzzer Server IP
+int HTTP_PORT = 14711;                   // PORT for GET Request
 
 IPAddress staticIP(192, 168, 15, 17);  // IP des Buzzer-ESP
 IPAddress gateway(192, 168, 15, 1);    // IP Router
 IPAddress subnet(255, 255, 255, 0);    // Subnet-Maske
 IPAddress dns(192, 168, 15, 1);        // IP Router
-//
-// Ende Benutzereinstellungen
-//
+// ===== User Settings End =====
 
-#define SCREEN_WIDTH 128     // OLED display width, in pixels
-#define SCREEN_HEIGHT 64     // OLED display height, in pixels
-#define OLED_RESET -1        // Reset pin # (or -1 if sharing Arduino reset pin)
-#define SCREEN_ADDRESS 0x3C  // < See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
+// ===== Display Settings =====
+#define SCREEN_WIDTH 128    // OLED display width, in pixels
+#define SCREEN_HEIGHT 64    // OLED display height, in pixels
+#define OLED_RESET -1       // Reset pin # (or -1 if sharing Arduino reset pin)
+#define SCREEN_ADDRESS 0x3C // 0x3D for 128x64, 0x3C for 128x32
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 // ===== Define GPIO Pins as Macros =====
@@ -54,6 +52,7 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 #define LED_PIN        22  // LED for connection feedback
 #define VOLTAGE_SENSOR 34  // Voltage sensor pin (for battery measurement)
 
+// ===== Other Global Variables =====
 float vbat = 0;      //
 int batProz = 0;
 int val = 0;      // variable to store the value read
@@ -64,7 +63,6 @@ int I2C_SDA = 19;                    // I2C Pins SCL-23 / SDA-19
 int pausezeit = 1000;                // Dauer für LED zur Tastenbestätigung
 long myTimer = 0;                    // Timer für Delay zwischen zwei Batteriemessungen in ms
 long myInterval = 20000;             // Delay zwischen zwei Batteriemessungen in ms
-int HTTP_PORT = 14711;               // PORT für GET Request
 String HTTP_METHOD = "GET";          // or "POST"
 String PATH_NAME = "";               // String PATH_NAME   = "/commands/start-picture";
 
