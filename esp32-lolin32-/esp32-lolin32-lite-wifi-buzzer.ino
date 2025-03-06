@@ -53,16 +53,19 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 #define VOLTAGE_SENSOR 34  // Voltage sensor pin (for battery measurement)
 
 // ===== Other Global Variables =====
-float vbat = 0;      //
+int val = 0;
+float vbat = 0;
 int batProz = 0;
-int val = 0;      // variable to store the value read
 int korrF = 250;  // Korrekturfaktor in mV (orginal 110, ggf. anpassen damit bei vollem Akku ca 100% angezeigt wird)
+long batteryMeasureTimer = 0;
+const long batteryMeasureInterval = 20000;  // Interval between full battery measurements
 int lademodus = 0;
+
 int I2C_SCL = 23;                    // I2C Pins SCL-23 / SDA-19
 int I2C_SDA = 19;                    // I2C Pins SCL-23 / SDA-19
+
 int pausezeit = 1000;                // Dauer für LED zur Tastenbestätigung
-long myTimer = 0;                    // Timer für Delay zwischen zwei Batteriemessungen in ms
-long myInterval = 20000;             // Delay zwischen zwei Batteriemessungen in ms
+
 String HTTP_METHOD = "GET";          // or "POST"
 String PATH_NAME = "";               // String PATH_NAME   = "/commands/start-picture";
 
@@ -364,8 +367,8 @@ void loop() {  // L O O P
     SendGETrequest(PATH_NAME);  // GET Request senden
   }
 
-  if (millis() > myTimer + myInterval) {
-    myTimer = millis();
+  if (millis() > batteryMeasureTimer + batteryMeasureInterval) {
     battStatus();
+    batteryMeasureTimer = millis();
   }
 }
