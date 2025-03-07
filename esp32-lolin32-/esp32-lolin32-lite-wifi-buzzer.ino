@@ -63,8 +63,6 @@ int lademodus = 0;
 int I2C_SCL = 23;                    // I2C Pins SCL-23 / SDA-19
 int I2C_SDA = 19;                    // I2C Pins SCL-23 / SDA-19
 
-int pausezeit = 1000;                // Dauer für LED zur Tastenbestätigung
-
 String HTTP_METHOD = "GET";          // or "POST"
 String PATH_NAME = "";               // String PATH_NAME   = "/commands/start-picture";
 
@@ -138,11 +136,13 @@ const unsigned char Photobooth [] PROGMEM = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 
+// ========= Reset Function =========
+void (*resetFunc)(void) = 0;
 
-void (*resetFunc)(void) = 0;  // create a reset-function
-
+// ========= Battery Status Function =========
 void battStatus() {
-  for (int i = 0; i <= 99; i++) {  // Integration über 100 Werte, jeweils 10ms Abstand
+  // Take 100 readings with a 10ms delay between them
+  for (int i = 0; i <= 100; i++) {
     val = val + analogRead(VOLTAGE_SENSOR);
     delay(10);
   }
@@ -151,20 +151,20 @@ void battStatus() {
   vbat = vbat / 2 * 3;                      // SPannungsteiler 2/3
   vbat = vbat + korrF;                      // Korrekturfaktor hunzufügen
   batProz = map(vbat, 3300, 4180, 0, 100);  // 0...100% Grenzspannungen festlegen (in mV)  3,1v bis 4,18
+  vbat = vbat / 1000.00;  // Convert to volts
 
-  vbat = vbat / 1000.00;  // Spannung in V umrechnen, mit Kommastellen
-
-  display.clearDisplay();               // Display-Speicher löschen
-  display.setTextSize(1);               // Normal 1:1 pixel scale
-  display.setTextColor(SSD1306_WHITE);  // Draw white text
-  display.setCursor(0, 0);              // Start mittig, erste Zeile
+  // Clear and update the OLED display
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(0, 0);
   display.println(F("Fotobox-Fernbedienung"));
-  display.setCursor(0, 8);  // Cursor mittig, zweite Zeile
-  display.print("Akku: ");  // Ausgabe Akkuspannung in V
+  display.setCursor(0, 8);
+  display.print("Akku: ");
   display.print(vbat, 2);
   display.print(" V ");
   display.print("ca.");
-  display.print(batProz);  // Ausgabe Akkuspannung in geschätzten Prozent
+  display.print(batProz);
   display.print("%");
   display.println("");
 
@@ -173,11 +173,12 @@ void battStatus() {
     display.println("beenden! => RESET");
   }
 
-  display.drawRect(0, 50, 127, 10, SSD1306_WHITE);  // Ladebalken Rahmen
-  display.fillRect(0, 50, map(batProz, 0, 100, 0, 127), 10, SSD1306_WHITE); // ausfüllen des Ladebalken
+  display.drawRect(0, 50, 127, 10, SSD1306_WHITE);
+  display.fillRect(0, 50, map(batProz, 0, 100, 0, 127), 10, SSD1306_WHITE);
   display.display();
 }
 
+// ========= Charging Mode =========
 void runChargingMode() {
   while (digitalRead(PHOTO_BUTTON) == HIGH) {  // Schleife, bis PHOTO gedrückt wird
     lademodus = 1;
@@ -193,6 +194,7 @@ void runChargingMode() {
   resetFunc();
 }
 
+// ========= LED Flash Function =========
 void ledflash(int times, int speed) {
   for (int i = 0; i <= times - 1; i++) {
     digitalWrite(LED_PIN, 1);
@@ -202,6 +204,7 @@ void ledflash(int times, int speed) {
   }
 }
 
+// ========= WiFi Connection =========
 void connect_wifi() {
   WLANStatus[0] = "WLAN idle";
   WLANStatus[1] = "No WLAN available";
@@ -211,15 +214,13 @@ void connect_wifi() {
   WLANStatus[5] = "WLAN connection lost";
   WLANStatus[6] = "WLAN disconnected";
   delay(10);
-  // We start by connecting to a WiFi network
+
   Serial.println();
   Serial.print("WLAN: ");
-  display.print("WLAN: ");
   Serial.println(ssid);
+  display.print("WLAN: ");
   display.print(ssid);
   display.display();
-
-  // this WLAN Module
 
   if (WiFi.config(staticIP, gateway, subnet, dns, dns) == false) {
     Serial.println("Configuration failed.");
@@ -230,16 +231,12 @@ void connect_wifi() {
   WiFi.begin(ssid, password);
 
   while (WiFi.status() != WL_CONNECTED && digitalRead(PRINT_BUTTON) == HIGH) {
-    ledflash(10, 50);  //LED blinkt, solange WLAN noch nicht verbunden
-    // delay(250);
+    ledflash(10, 50);
     Serial.print(".");
-    //display.clearDisplay();
-    //display.setTextSize(1);             // Normal 1:1 pixel scale
-    //display.setTextColor(SSD1306_WHITE);        // Draw white text
     display.print(".");
     display.display();
   }
-  if (digitalRead(PRINT_BUTTON) == LOW) {  // LADE-Modus bei gedrücktem PRINT-Taster während WLAN Connects
+  if (digitalRead(PRINT_BUTTON) == LOW) {
     Serial.println("PRINT-Taster wurde gedrückt, starte Lademodus ohne WIFI");
     runChargingMode();
   }
@@ -252,14 +249,12 @@ void connect_wifi() {
   digitalWrite(LED_PIN, 0);
 }
 
-void SendGETrequest(String PATH_NAME) {  // GET-Request senden an Fotobox-Server
+// ========= Send GET Request =========
+void SendGETrequest(String PATH_NAME) {
   WiFiClient client;
   if (client.connect(HOST_NAME, HTTP_PORT)) {
     display.setCursor(9, 16);
     display.print("gestartet");
-    //display.print(HOST_NAME);
-    //display.print(" via Port: ");
-    //display.println(HTTP_PORT);
     display.display();
     ledflash(2, 500);
   } else {
@@ -272,27 +267,29 @@ void SendGETrequest(String PATH_NAME) {  // GET-Request senden an Fotobox-Server
   client.println(HTTP_METHOD + " " + PATH_NAME + " HTTP/1.1");
   client.println("Host: " + String(HOST_NAME));
   client.println("Connection: close");
-  client.println();  // end HTTP request header
-  // Kontrollausgabe via Serial
-  //display.setTextSize(1);
+  client.println();
+
   display.setCursor(4, 32);
   display.println("Verbindung");
   display.setCursor(22, 48);
   display.println("beendet");
   display.display();
   delay(5000);
-  battStatus();  // Batteriestatus anzeigen
+
+  battStatus();
 }
 
+// ========= Setup =========
 void setup() {
-  Serial.begin(115200);            // Terminal-Ausgabe starten
-  pinMode(LED_PIN, OUTPUT);         //
-  pinMode(PHOTO_BUTTON, INPUT_PULLUP);    // Input-Pin für Foto-Taster mit Pull-Up, Taster nach Masse
-  pinMode(COLLAGE_BUTTON, INPUT_PULLUP);  // Input-Pin für Collage-Taster mit Pull-Up, Taster nach Masse
-  pinMode(PRINT_BUTTON, INPUT_PULLUP);    // Input-Pin für Print-Taster mit Pull-Up, Taster nach Masse
+  Serial.begin(115200);
+  pinMode(LED_PIN, OUTPUT);
+  pinMode(PHOTO_BUTTON, INPUT_PULLUP);
+  pinMode(COLLAGE_BUTTON, INPUT_PULLUP);
+  pinMode(PRINT_BUTTON, INPUT_PULLUP);
   delay(100);
 
-  Wire.begin(I2C_SDA, I2C_SCL);  // I2C Display starten
+  // start I2C Display
+  Wire.begin(I2C_SDA, I2C_SCL);
 
   // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
   if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
@@ -301,66 +298,59 @@ void setup() {
       ;  // Don't proceed, loop forever
   }
 
-//Photobooth Logo Aanfang
-  display.clearDisplay();               // Display-Speicher löschen
-  
-  // Draw the bitmap:
+  // Photobooth Logo
+  display.clearDisplay();
   // drawBitmap(x position, y position, bitmap data, bitmap width, bitmap height, color)
   display.drawBitmap(0, 0, Photobooth, 128, 64, WHITE);
-  
-  // Update the display
   display.display();
-  delay(5000);                          // Pause in ms
-//Photobooth Logo Ende
+  delay(5000);
 
-  display.setTextColor(SSD1306_WHITE);  // Draw white text
+  display.setTextColor(SSD1306_WHITE);
   display.clearDisplay();
   display.display();
-  // delay(2000);
-  battStatus();  // Batteriestatus anzeigen
+  battStatus();
 }
 
-void loop() {  // L O O P
-
-  // WIFI checken
-  if (WiFi.status() != WL_CONNECTED) {           // wenn WIFI nicht verbunden... connecten
-    display.println(WLANStatus[WiFi.status()]);  // gibt den aktuellen WLAN-Staus aus
+// ========= Main Loop =========
+void loop() {
+  if (WiFi.status() != WL_CONNECTED) {
+    display.println(WLANStatus[WiFi.status()]);
     display.display();
-    connect_wifi();  // WLAN Verbindung aktivieren
+    connect_wifi();
   }
 
-  if (digitalRead(PHOTO_BUTTON) == LOW)  // wenn Foto-TAster gedrückt
-  {
+  // Check buttons for actions
+  if (digitalRead(PHOTO_BUTTON) == LOW) {
     display.clearDisplay();
-    display.setTextSize(2);               // Normal 1:1 pixel scale
-    display.setTextColor(SSD1306_WHITE);  // Draw white text
+    display.setTextSize(2);
+    display.setTextColor(SSD1306_WHITE);
     display.setCursor(34, 0);
     display.println("FOTO");
     display.display();
     PATH_NAME = "/commands/start-picture";
-    SendGETrequest(PATH_NAME);  // GET Request senden
+    SendGETrequest(PATH_NAME);
   }
 
   if (digitalRead(COLLAGE_BUTTON) == LOW) {
     display.clearDisplay();
-    display.setTextSize(2);               // Normal 1:1 pixel scale
-    display.setTextColor(SSD1306_WHITE);  // Draw white text
+    display.setTextSize(2);
+    display.setTextColor(SSD1306_WHITE);
     display.setCursor(22, 0);
     display.println("COLLAGE");
     display.display();
     PATH_NAME = "/commands/start-collage";
-    SendGETrequest(PATH_NAME);  // GET Request senden
+    SendGETrequest(PATH_NAME);
   }
 
   if (digitalRead(PRINT_BUTTON) == LOW) {
     display.clearDisplay();
-    display.setTextSize(2);               // Normal 1:1 pixel scale
-    display.setTextColor(SSD1306_WHITE);  // Draw white text
+    display.setTextSize(2);
+    display.setTextColor(SSD1306_WHITE);
     display.setCursor(34, 0);
     display.println("DRUCKEN");
     display.display();
     PATH_NAME = "/commands/start-print";
-    SendGETrequest(PATH_NAME);  // GET Request senden
+    SendGETrequest(PATH_NAME);
   }
 
   if (millis() > batteryMeasureTimer + batteryMeasureInterval) {
