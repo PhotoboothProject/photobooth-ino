@@ -44,7 +44,11 @@ IPAddress dns(192, 168, 15, 1);        // IP Router
 #define SCREEN_ADDRESS 0x3C // 0x3D for 128x64, 0x3C for 128x32
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
-// ===== Define GPIO Pins as Macros =====
+// ===== Define I2C Pins =====
+#define SDA_PIN 19         // I2C SDA pin
+#define SCL_PIN 23         // I2C SCL pin
+
+// ===== Define GPIO Pins =====
 #define PHOTO_BUTTON   17  // Pin for photo button
 #define COLLAGE_BUTTON 5   // Pin for collage button
 #define PRINT_BUTTON   18  // Pin for print button
@@ -59,9 +63,6 @@ int korrF = 250;  // Korrekturfaktor in mV (orginal 110, ggf. anpassen damit bei
 long batteryMeasureTimer = 0;
 const long batteryMeasureInterval = 20000;  // Interval between full battery measurements
 int lademodus = 0;
-
-int I2C_SCL = 23;                    // I2C Pins SCL-23 / SDA-19
-int I2C_SDA = 19;                    // I2C Pins SCL-23 / SDA-19
 
 String HTTP_METHOD = "GET";          // or "POST"
 String PATH_NAME = "";               // String PATH_NAME   = "/commands/start-picture";
@@ -289,7 +290,7 @@ void setup() {
   delay(100);
 
   // start I2C Display
-  Wire.begin(I2C_SDA, I2C_SCL);
+  Wire.begin(SDA_PIN, SCL_PIN);
 
   // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
   if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
