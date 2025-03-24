@@ -227,7 +227,7 @@ void restServerRouting() {
 }
 
 // Button click events
-void singleclick() {
+void pictureAction() {
   Serial.println(F("GET request for single picture"));
 
   String url = String("http://") + photoboothIP + ":" + photoboothPort + "/commands/start-picture";
@@ -244,10 +244,61 @@ void singleclick() {
   http.end();
 }
 
-void longclick() {
+void collageAction() {
   Serial.println(F("GET Request for Collage"));
 
   String url = String("http://") + photoboothIP + ":" + photoboothPort + "/commands/start-collage";
+  http.begin(client, url);
+
+  int httpCode = http.GET();
+  if (httpCode > 0) {
+    String payload = http.getString();
+    Serial.println(httpCode);
+    Serial.println(payload);
+  } else {
+    Serial.println("Error on HTTP request");
+  }
+  http.end();
+}
+
+void printAction() {
+  Serial.println(F("GET Request for print);
+
+  String url = String("http://") + photoboothIP + ":" + photoboothPort + "/commands/start-print";
+  http.begin(client, url);
+
+  int httpCode = http.GET();
+  if (httpCode > 0) {
+    String payload = http.getString();
+    Serial.println(httpCode);
+    Serial.println(payload);
+  } else {
+    Serial.println("Error on HTTP request");
+  }
+  http.end();
+}
+
+void rebootAction() {
+  Serial.println(F("GET Request for Reboot);
+
+  String url = String("http://") + photoboothIP + ":" + photoboothPort + "/commands/reboot-now";
+  http.begin(client, url);
+
+  int httpCode = http.GET();
+  if (httpCode > 0) {
+    String payload = http.getString();
+    Serial.println(httpCode);
+    Serial.println(payload);
+  } else {
+    Serial.println("Error on HTTP request");
+  }
+  http.end();
+}
+
+void shutdownAction() {
+  Serial.println(F("GET Request for Shutdown);
+
+  String url = String("http://") + photoboothIP + ":" + photoboothPort + "/commands/shutdown-now";
   http.begin(client, url);
 
   int httpCode = http.GET();
@@ -324,8 +375,8 @@ void setup() {
   );
   // Trigger long press after 1500ms
   button.setPressMs(1500);
-  button.attachLongPressStop(longclick);
-  button.attachClick(singleclick);
+  button.attachLongPressStop(collageAction);
+  button.attachClick(pictureAction);
 
   Serial.println(F("GET Request to Remotebuzzer-Server ready!"));
   Serial.println(F("---------------------------------------"));
