@@ -9,14 +9,15 @@
 // ESP32 includes
 #include <WiFi.h>
 #include <WebServer.h>
+#include <HTTPClient.h>
 #include <esp_wifi.h>
 
 #else
-
 // ESP8266 includes
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
+#include <ESP8266HTTPClient.h>
 #endif
 
 #if SOFTWARE_SERIAL_AVAILABLE
