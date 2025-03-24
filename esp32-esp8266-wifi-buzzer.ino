@@ -107,8 +107,8 @@ void setup(void) {
   );
   // Trigger long press after 1500ms
   button.setPressMs(1500);
-  button.attachLongPressStop(longclick);
-  button.attachClick(singleclick);
+  button.attachLongPressStop(collageAction);
+  button.attachClick(pictureAction);
 }
 
 void loop(void) {
@@ -116,7 +116,7 @@ void loop(void) {
   delay(10);
 }
 
-void singleclick() {
+void pictureAction() {
   Serial.println(F("GET request for single picture"));
 
   String url = String("http://") + photoboothIP + ":" + photoboothPort + "/commands/start-picture";
@@ -135,10 +135,29 @@ void singleclick() {
   http.end();
 }
 
-void longclick() {
+void collageAction() {
   Serial.println(F("GET Request for Collage"));
 
   String url = String("http://") + photoboothIP + ":" + photoboothPort + "/commands/start-collage";
+  http.begin(client, url);
+
+  int httpCode = http.GET();
+
+  if (httpCode > 0) {
+    String payload = http.getString();
+    Serial.println(httpCode);
+    Serial.println(payload);
+  } else {
+    Serial.println("Error on HTTP request");
+  }
+
+  http.end();
+}
+
+void printAction() {
+  Serial.println(F("GET Request for Print);
+
+  String url = String("http://") + photoboothIP + ":" + photoboothPort + "/commands/start-print";
   http.begin(client, url);
 
   int httpCode = http.GET();
