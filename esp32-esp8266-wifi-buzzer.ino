@@ -25,7 +25,8 @@
 #endif
 
 // Button PIN
-#define BUTTON_PIN D1
+#define FIRST_BUTTON_PIN D1
+#define SECOND_BUTTON_PIN D2
 
 // WIFI Connection
 const char * ssid = "Your SSID";
@@ -50,7 +51,8 @@ WiFiClient client;
 HTTPClient http;
 
 // OneButton
-OneButton button;
+OneButton firstButton;
+OneButton secondButton;
 
 void setup(void) {
   delay(500);
@@ -101,19 +103,29 @@ void setup(void) {
   Serial.println(F("---------------------------------------"));
 
   // Button click event configuration
-  button.setup(
-    BUTTON_PIN,   // Input pin for the button
+  firstButton.setup(
+    FIRST_BUTTON_PIN,   // Input pin for the button
     INPUT_PULLUP, // INPUT and enable the internal pull-up resistor
     true          // Button is active LOW
   );
   // Trigger long press after 1500ms
-  button.setPressMs(1500);
-  button.attachLongPressStop(collageAction);
-  button.attachClick(pictureAction);
+  firstButton.setPressMs(1500);
+  firstButton.attachLongPressStop(collageAction);
+  firstButton.attachClick(pictureAction);
+
+  secondButton.setup(
+    SECOND_BUTTON_PIN,   // Input pin for the button
+    INPUT_PULLUP, // INPUT and enable the internal pull-up resistor
+    true          // Button is active LOW
+  );
+  // Trigger long press after 1500ms
+  secondButton.setPressMs(1500);
+  secondButton.attachClick(printAction);
 }
 
 void loop(void) {
-  button.tick();
+  firstButton.tick();
+  secondButton.tick();
   delay(10);
 }
 
