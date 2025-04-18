@@ -168,7 +168,7 @@ void collageAction() {
 }
 
 void printAction() {
-  Serial.println(F("GET Request for Print");
+  Serial.println(F("GET Request for Print"));
 
   String url = String("http://") + photoboothIP + ":" + photoboothPort + "/commands/start-print";
   http.begin(client, url);
